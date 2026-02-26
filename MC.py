@@ -97,19 +97,54 @@ if selected == 'Used_cars':
 
     st.success(Price_predict)
 
-if selected== 'BMI':
+import streamlit as st
+
+# สมมติว่าตัวแปร selected และ bmi_model ถูกกำหนดไว้แล้วก่อนหน้านี้
+if selected == 'BMI':
     st.title('BMI Classification')
     
-    Income = st.text_input('Income')
-    LotSize = st.text_input('LotSize')
-    Riding_prediction = ''
+    # 1. รับค่าเพศเป็นข้อความ แล้วค่อยแปลงเป็นตัวเลขเบื้องหลัง
+    # หมายเหตุ: ลองเช็คดูนะครับว่าตอนเทรนโมเดลคุณให้ Male=0 หรือ Male=1 โค้ดนี้สมมติให้ Male=0 ครับ
+    gender_input = st.selectbox('Gender', ['Male', 'Female'])
+    gender_val = 0 if gender_input == 'Male' else 1 
+    
+    # 2. รับค่าส่วนสูง (ซม.) และน้ำหนัก (กก.)
+    height = st.number_input('Height (cm)', min_value=0.0, format="%.1f")
+    weight = st.number_input('Weight (kg)', min_value=0.0, format="%.1f")
+    
+    # ดิกชันนารีสำหรับแปลผลลัพธ์ Index
+    bmi_categories = {
+        0: "Extremely Weak (ผอมมาก)",
+        1: "Weak (ผอม)",
+        2: "Normal (เกณฑ์ปกติ)",
+        3: "Overweight (น้ำหนักเกิน)",
+        4: "Obesity (โรคอ้วน)",
+        5: "Extreme Obesity (โรคอ้วนขั้นรุนแรง)"
+    }
+    
     if st.button('Predict'):
-        Riding_prediction = riding_model.predict([[
-            float(Income),
-            float(LotSize)
-            ]])
-        if Riding_prediction[0]==1:
-            Riding_prediction = 'Owner'
+        if height > 0 and weight > 0:
+            try:
+                # ส่งค่าไปให้โมเดลทำนาย (เพศ, ส่วนสูง, น้ำหนัก)
+                prediction = bmi_model.predict([[
+                    float(gender_val),
+                    float(height),
+                    float(weight)
+                ]])
+                
+                # ดึงค่า Index ออกมา และแปลงเป็นจำนวนเต็ม (integer)
+                index_result = int(prediction[0])
+                
+                # ดึงข้อความแปลผลจากดิกชันนารี
+                category_text = bmi_categories.get(index_result, "ไม่ทราบค่าการแปลผล")
+                
+                # แสดงผลลัพธ์แบบสวยงาม
+                st.success(f'ดัชนีผลลัพธ์ (Index): {index_result}')
+                st.info(f'**ผลการประเมิน:** {category_text}')
+                
+            except Exception as e:
+                st.error(f'เกิดข้อผิดพลาดในการประมวลผล: {e}')
         else:
-            Riding_prediction = 'Non Owner'
-    st.success(Riding_prediction)
+            st.warning('กรุณากรอกส่วนสูงและน้ำหนักให้มากกว่า 0')
+       
+
