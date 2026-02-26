@@ -109,7 +109,7 @@ if selected == 'BMI':
     gender_val = 0 if gender_input == 'Male' else 1 
     
     # 2. รับค่าส่วนสูง (ซม.) และน้ำหนัก (กก.)
-    height = st.number_input('Height (cm)', min_value=0.0, format="%.1f")
+    height = st.number_input('Height (cm)', min_value=0)
     weight = st.number_input('Weight (kg)', min_value=0.0, format="%.1f")
     
     # ดิกชันนารีสำหรับแปลผลลัพธ์ Index
@@ -147,4 +147,5 @@ if selected == 'BMI':
         else:
             st.warning('กรุณากรอกส่วนสูงและน้ำหนักให้มากกว่า 0')
        
+
 
